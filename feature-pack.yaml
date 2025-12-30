@@ -8,18 +8,12 @@ description: A HIT feature pack
 # ROUTES - Frontend page routes
 # ─────────────────────────────────────────────────────────────────────────────
 routes:
-  - path: /workflows
-    page: Dashboard
-    roles: []
   - path: /workflows/runs
     page: WorkflowRunsList
-    roles: []
+    roles: [admin]
   - path: /workflows/runs/[runId]
     page: WorkflowRunDetail
-    roles: []
-  - path: /workflows/approvals
-    page: ApprovalsInbox
-    roles: []
+    roles: [admin]
 
 # ─────────────────────────────────────────────────────────────────────────────
 # NAVIGATION - Sidebar/topbar items
@@ -27,29 +21,12 @@ routes:
 nav:
   - id: workflows
     label: Workflows
+    path: /workflows/runs
     icon: Workflow
     group: system
     weight: 900
     showWhen: authenticated
-    children:
-      - id: workflows-dashboard
-        label: Dashboard
-        path: /workflows
-        icon: LayoutDashboard
-        weight: 100
-        showWhen: authenticated
-      - id: workflows-runs
-        label: Runs
-        path: /workflows/runs
-        icon: Activity
-        weight: 110
-        showWhen: authenticated
-      - id: workflows-approvals
-        label: My Approvals
-        path: /workflows/approvals
-        icon: Inbox
-        weight: 120
-        showWhen: authenticated
+    roles: [admin]
 
 # ─────────────────────────────────────────────────────────────────────────────
 # SCHEMA - Drizzle ORM table definitions
