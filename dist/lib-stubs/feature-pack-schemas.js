@@ -1,4 +1,3 @@
-"use strict";
 /**
  * Stub for @/lib/feature-pack-schemas
  *
@@ -6,6 +5,5 @@
  * At runtime, the consuming application provides the actual implementation
  * via the generated lib/feature-pack-schemas.ts file.
  */
-// Re-export schema tables from this feature pack
-// Update this when you add tables to src/schema/workflows.ts
-// export { myTable } from '../schema/workflows';
+// Re-export from the actual schema file for type checking during build
+export { principalTypeEnum, workflows, workflowVersions, workflowAcls, WORKFLOW_PERMISSIONS, } from '../schema/workflows';
