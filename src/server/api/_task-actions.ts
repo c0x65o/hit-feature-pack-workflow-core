@@ -8,6 +8,52 @@ import { extractUserFromRequest } from '../auth';
 import { getWorkflowIdForRun, hasWorkflowAclAccess, isAdmin } from './_workflow-access';
 import { publishWorkflowEvent } from '../utils/publish-event';
 
+type ApplyAction = {
+  kind?: 'api';
+  method?: string;
+  path?: string;
+  body?: Record<string, unknown>;
+};
+
+function parseApplyAction(task: any): ApplyAction | null {
+  const prompt = task?.prompt && typeof task.prompt === 'object' ? task.prompt : null;
+  const apply = prompt && typeof (prompt as any).applyAction === 'object' ? (prompt as any).applyAction : null;
+  if (!apply) return null;
+  const kind = typeof apply.kind === 'string' ? apply.kind : 'api';
+  const method = typeof apply.method === 'string' ? apply.method.toUpperCase() : 'POST';
+  const path = typeof apply.path === 'string' ? apply.path : null;
+  const body = apply.body && typeof apply.body === 'object' ? apply.body : undefined;
+  if (!path) return null;
+  return { kind: kind as any, method, path, body };
+}
+
+async function callApplyAction(request: NextRequest, action: ApplyAction, extraBody: Record<string, unknown>) {
+  const url = new URL(request.url);
+  const target = new URL(String(action.path), url.origin);
+  const auth = request.headers.get('authorization');
+  const cookie = request.headers.get('cookie');
+
+  const res = await fetch(target.toString(), {
+    method: action.method || 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      ...(auth ? { Authorization: auth } : {}),
+      ...(cookie ? { Cookie: cookie } : {}),
+    },
+    body: JSON.stringify({ ...(action.body || {}), ...extraBody }),
+  });
+
+  const text = await res.text().catch(() => '');
+  let json: any = null;
+  try {
+    json = text ? JSON.parse(text) : null;
+  } catch {
+    json = null;
+  }
+
+  return { ok: res.ok, status: res.status, json, text };
+}
+
 type AssignedToShape = {
   users?: string[];
   roles?: string[];
@@ -109,9 +155,41 @@ export async function actOnTask(
     })
     .where(eq(workflowTasks.id, taskId));
 
-  // Resume run (MVP): mark running on approve; mark failed on deny.
-  const runStatus = action === 'approve' ? 'running' : 'failed';
-  await db.update(workflowRuns).set({ status: runStatus }).where(eq(workflowRuns.id, runId));
+  // Apply (optional): if this task carries an applyAction, run it on approve.
+  // This is how lifecycle gates become "real workflows": approve -> apply the mutation.
+  const applyAction = action === 'approve' ? parseApplyAction(task as any) : null;
+  let runStatus: string = action === 'approve' ? 'running' : 'failed';
+  let applyResult: any = null;
+  let applyError: any = null;
+
+  if (applyAction?.kind === 'api') {
+    const result = await callApplyAction(request, applyAction, { workflowRunId: runId, workflowTaskId: taskId });
+    applyResult = { status: result.status, ok: result.ok, json: result.json ?? undefined };
+    if (result.ok) {
+      runStatus = 'succeeded';
+    } else {
+      runStatus = 'failed';
+      applyError = {
+        status: result.status,
+        body: result.json ?? undefined,
+        text: result.json ? undefined : result.text?.slice(0, 2000),
+      };
+    }
+  }
+
+  await db
+    .update(workflowRuns)
+    .set({
+      status: runStatus as any,
+      ...(runStatus === 'succeeded' || runStatus === 'failed'
+        ? {
+            endedAt: decidedAt,
+            ...(applyError ? { error: applyError } : {}),
+            ...(applyResult && runStatus === 'succeeded' ? { output: applyResult } : {}),
+          }
+        : {}),
+    } as any)
+    .where(eq(workflowRuns.id, runId));
 
   // Append events
   const [maxRow] = await db
@@ -134,11 +212,38 @@ export async function actOnTask(
       runId,
       seq: baseSeq + 2,
       tMs: nowMs,
-      name: action === 'approve' ? 'run.resumed' : 'run.failed',
-      level: action === 'approve' ? 'info' : 'error',
+      name:
+        action === 'approve'
+          ? applyAction
+            ? runStatus === 'succeeded'
+              ? 'apply.succeeded'
+              : 'apply.failed'
+            : 'run.resumed'
+          : 'run.failed',
+      level:
+        action === 'approve'
+          ? applyAction
+            ? runStatus === 'succeeded'
+              ? 'info'
+              : 'error'
+            : 'info'
+          : 'error',
       nodeId: task.nodeId || undefined,
-      data: { reason: 'human_task', taskId },
+      data: applyAction ? { taskId, applyResult: applyResult || undefined, applyError: applyError || undefined } : { reason: 'human_task', taskId },
     },
+    ...(action === 'approve' && applyAction && (runStatus === 'succeeded' || runStatus === 'failed')
+      ? [
+          {
+            runId,
+            seq: baseSeq + 3,
+            tMs: nowMs,
+            name: runStatus === 'succeeded' ? 'run.succeeded' : 'run.failed',
+            level: runStatus === 'succeeded' ? 'info' : 'error',
+            nodeId: task.nodeId || undefined,
+            data: { taskId },
+          },
+        ]
+      : []),
   ]);
 
   // Best-effort real-time update so inboxes refresh immediately
@@ -153,6 +258,10 @@ export async function actOnTask(
     comment: comment || undefined,
   }).catch(() => {});
 
-  return { ok: true, status: 200, body: { success: true, runId, taskId, status: newStatus, runStatus } };
+  return {
+    ok: true,
+    status: 200,
+    body: { success: true, runId, taskId, status: newStatus, runStatus, applyResult: applyResult || undefined, applyError: applyError || undefined },
+  };
 }
 
