@@ -542,7 +542,7 @@ export declare const workflowRunEvents: import("drizzle-orm/pg-core").PgTableWit
             name: "t_ms";
             tableName: "workflow_run_events";
             dataType: "number";
-            columnType: "PgInteger";
+            columnType: "PgBigInt53";
             data: number;
             driverParam: string | number;
             notNull: true;

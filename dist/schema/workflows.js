@@ -1,4 +1,4 @@
-import { index, integer, jsonb, pgEnum, pgTable, text, timestamp, unique, uuid, varchar, } from 'drizzle-orm/pg-core';
+import { bigint, index, integer, jsonb, pgEnum, pgTable, text, timestamp, unique, uuid, varchar, } from 'drizzle-orm/pg-core';
 /**
  * Principal Types for ACL
  * Shared enum used across all feature packs (forms, vault, notepad, etc.)
@@ -113,7 +113,8 @@ export const workflowRunEvents = pgTable('workflow_run_events', {
         .notNull()
         .references(() => workflowRuns.id, { onDelete: 'cascade' }),
     seq: integer('seq').notNull(),
-    tMs: integer('t_ms').notNull(),
+    // ms since epoch (Date.now()) requires bigint (int8) to avoid int32 overflow
+    tMs: bigint('t_ms', { mode: 'number' }).notNull(),
     name: varchar('name', { length: 255 }).notNull(),
     level: varchar('level', { length: 16 }).notNull().default('info'), // info | warn | error
     nodeId: varchar('node_id', { length: 255 }),
