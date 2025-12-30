@@ -1,0 +1,15 @@
+export {};
+// ─────────────────────────────────────────────────────────────────────────────
+// TABLES
+// ─────────────────────────────────────────────────────────────────────────────
+// Example table - replace with your actual schema
+// export const WorkflowsItems = pgTable('workflows_items', {
+//   id: uuid('id').defaultRandom().primaryKey(),
+//   name: text('name').notNull(),
+//   createdAt: timestamp('created_at').defaultNow().notNull(),
+// });
+// ─────────────────────────────────────────────────────────────────────────────
+// TYPES
+// ─────────────────────────────────────────────────────────────────────────────
+// export type WorkflowsItem = InferSelectModel<typeof WorkflowsItems>;
+// export type InsertWorkflowsItem = InferInsertModel<typeof WorkflowsItems>;
