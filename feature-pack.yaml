@@ -1,0 +1,48 @@
+# Feature Pack: workflows
+# A HIT feature pack
+
+name: workflows
+description: A HIT feature pack
+
+# ─────────────────────────────────────────────────────────────────────────────
+# ROUTES - Frontend page routes
+# ─────────────────────────────────────────────────────────────────────────────
+routes:
+  - path: /workflows
+    page: Dashboard
+    roles: []
+
+# ─────────────────────────────────────────────────────────────────────────────
+# NAVIGATION - Sidebar/topbar items
+# ─────────────────────────────────────────────────────────────────────────────
+nav:
+  - id: workflows
+    label: workflows
+    path: /workflows
+    icon: Package
+    group: main
+    weight: 100
+    showWhen: authenticated
+
+# ─────────────────────────────────────────────────────────────────────────────
+# SCHEMA - Drizzle ORM table definitions
+# ─────────────────────────────────────────────────────────────────────────────
+schema:
+  source: src/schema/workflows.ts
+  exports: []
+
+# ─────────────────────────────────────────────────────────────────────────────
+# API ROUTES - Backend endpoints
+# ─────────────────────────────────────────────────────────────────────────────
+api:
+  routes: []
+
+# ─────────────────────────────────────────────────────────────────────────────
+# DEPENDENCIES
+# ─────────────────────────────────────────────────────────────────────────────
+requires:
+  modules: []
+
+dependencies:
+  feature_packs:
+    - name: dashboard-shell
