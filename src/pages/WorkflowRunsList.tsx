@@ -77,6 +77,13 @@ export function WorkflowRunsList({ onNavigate }: WorkflowRunsListProps) {
           loading={loading}
           data={runs}
           emptyMessage="No workflow runs yet. Workflow runs will appear here as they are executed."
+          searchable
+          exportable
+          showColumnVisibility
+          tableId="workflows.runs"
+          onRefresh={refresh}
+          refreshing={loading}
+          searchDebounceMs={400}
           columns={[
             {
               key: 'startedAt',
