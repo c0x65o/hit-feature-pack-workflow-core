@@ -68,6 +68,12 @@ export function WorkflowRunsList({ onNavigate }: WorkflowRunsListProps) {
       if (serverTable.query.search) params.set('search', serverTable.query.search);
       if (serverTable.query.sortBy) params.set('sortBy', serverTable.query.sortBy);
       if (serverTable.query.sortOrder) params.set('sortOrder', serverTable.query.sortOrder);
+      // Map quick filters (from Filters button) to API params.
+      // The runs API supports a first-class `status` param.
+      const status = (serverTable.quickFilterValues as any)?.status;
+      if (typeof status === 'string' && status.trim()) {
+        params.set('status', status.trim());
+      }
 
       const res = await fetch(`/api/workflows/runs?${params.toString()}`, { method: 'GET' });
       const json = await res.json().catch(() => ({}));
@@ -82,7 +88,14 @@ export function WorkflowRunsList({ onNavigate }: WorkflowRunsListProps) {
     } finally {
       setLoading(false);
     }
-  }, [serverTable.query.page, serverTable.query.pageSize, serverTable.query.search, serverTable.query.sortBy, serverTable.query.sortOrder]);
+  }, [
+    serverTable.query.page,
+    serverTable.query.pageSize,
+    serverTable.query.search,
+    serverTable.query.sortBy,
+    serverTable.query.sortOrder,
+    serverTable.quickFilterValues,
+  ]);
 
   useEffect(() => {
     refresh();
