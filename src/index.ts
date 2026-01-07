@@ -1,4 +1,4 @@
-// @hit/feature-pack-workflows
+// @hit/feature-pack-workflow-core
 // A HIT feature pack
 
 export * from './pages';
