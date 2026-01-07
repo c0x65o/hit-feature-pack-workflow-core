@@ -1,10 +1,11 @@
 'use client';
 
-import React from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useUi } from '@hit/ui-kit';
+import { useServerDataTableState } from '@hit/ui-kit';
 import { formatDateTime, formatRelativeTime } from '@hit/sdk';
 import { Activity, RefreshCw, Play, Clock, CheckCircle2, XCircle, Pause } from 'lucide-react';
-import { useAllWorkflowRuns, type WorkflowRunStatus } from '../hooks/useWorkflowRuns';
+import type { WorkflowRunStatus } from '../hooks/useWorkflowRuns';
 
 interface WorkflowRunsListProps {
   onNavigate?: (path: string) => void;
@@ -46,7 +47,46 @@ function getStatusVariant(status: WorkflowRunStatus): 'success' | 'warning' | 'e
 
 export function WorkflowRunsList({ onNavigate }: WorkflowRunsListProps) {
   const { Page, Card, Button, DataTable, Alert, Badge } = useUi();
-  const { runs, loading, error, refresh } = useAllWorkflowRuns({ limit: 100 });
+  const serverTable = useServerDataTableState({
+    tableId: 'workflows.runs',
+    pageSize: 25,
+    initialSort: { sortBy: 'startedAt', sortOrder: 'desc' },
+    sortWhitelist: ['startedAt', 'createdAt', 'status', 'completedAt'],
+  });
+  const [runs, setRuns] = useState<any[]>([]);
+  const [total, setTotal] = useState<number>(0);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<Error | null>(null);
+
+  const refresh = useCallback(async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      const params = new URLSearchParams();
+      params.set('page', String(serverTable.query.page));
+      params.set('pageSize', String(serverTable.query.pageSize));
+      if (serverTable.query.search) params.set('search', serverTable.query.search);
+      if (serverTable.query.sortBy) params.set('sortBy', serverTable.query.sortBy);
+      if (serverTable.query.sortOrder) params.set('sortOrder', serverTable.query.sortOrder);
+
+      const res = await fetch(`/api/workflows/runs?${params.toString()}`, { method: 'GET' });
+      const json = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(json?.error || 'Failed to fetch workflow runs');
+      const items = Array.isArray(json?.items) ? json.items : [];
+      setRuns(items);
+      setTotal(Number(json?.pagination?.total || 0));
+    } catch (e) {
+      setError(e instanceof Error ? e : new Error('Failed to fetch workflow runs'));
+      setRuns([]);
+      setTotal(0);
+    } finally {
+      setLoading(false);
+    }
+  }, [serverTable.query.page, serverTable.query.pageSize, serverTable.query.search, serverTable.query.sortBy, serverTable.query.sortOrder]);
+
+  useEffect(() => {
+    refresh();
+  }, [refresh]);
 
   const navigate = (path: string) => {
     if (onNavigate) onNavigate(path);
@@ -76,11 +116,12 @@ export function WorkflowRunsList({ onNavigate }: WorkflowRunsListProps) {
         <DataTable
           loading={loading}
           data={runs}
+          total={total}
+          {...serverTable.dataTable}
           emptyMessage="No workflow runs yet. Workflow runs will appear here as they are executed."
           searchable
           exportable
           showColumnVisibility
-          tableId="workflows.runs"
           onRefresh={refresh}
           refreshing={loading}
           searchDebounceMs={400}

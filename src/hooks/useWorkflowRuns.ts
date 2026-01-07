@@ -128,7 +128,6 @@ export function useAllWorkflowRuns(opts: { workflowId?: string; limit?: number; 
       setLoading(true);
       setError(null);
       // If workflowId is provided, use the workflow-specific endpoint
-      // Otherwise we'd need a global runs endpoint - for now we'll use a placeholder
       const limit = opts.limit ?? 100;
       const offset = opts.offset ?? 0;
 
@@ -138,27 +137,20 @@ export function useAllWorkflowRuns(opts: { workflowId?: string; limit?: number; 
         );
         setRuns(Array.isArray(data?.runs) ? data.runs : []);
       } else {
-        // For global runs, we need to fetch all workflows first and then their runs
-        // This is MVP - a proper global endpoint would be added later
-        const workflowsData = await fetchWorkflowApi<{ workflows: { id: string; name: string }[] }>('');
-        const workflows = Array.isArray(workflowsData?.workflows) ? workflowsData.workflows : [];
-
-        const allRuns: WorkflowRunSummary[] = [];
-        for (const wf of workflows.slice(0, 10)) {
-          // Limit to first 10 workflows for MVP
-          try {
-            const runsData = await fetchWorkflowApi<{ runs: WorkflowRunSummary[] }>(
-              `/${wf.id}/runs?limit=20&offset=0`
-            );
-            const wfRuns = Array.isArray(runsData?.runs) ? runsData.runs : [];
-            allRuns.push(...wfRuns.map((r) => ({ ...r, workflowName: wf.name })));
-          } catch {
-            // Skip workflows we can't access
-          }
+        // Global runs endpoint (server-side pagination + ACL filtering)
+        const params = new URLSearchParams();
+        params.set('page', '1');
+        params.set('pageSize', String(limit));
+        params.set('sortBy', 'startedAt');
+        params.set('sortOrder', 'desc');
+        // Approximate offset by paging; this hook is used by the UI list view which will use proper page/pageSize.
+        // Keep behavior stable for callers that still pass limit/offset.
+        if (offset > 0) {
+          const page = Math.floor(offset / limit) + 1;
+          params.set('page', String(page));
         }
-        // Sort by startedAt descending
-        allRuns.sort((a, b) => new Date(b.startedAt).getTime() - new Date(a.startedAt).getTime());
-        setRuns(allRuns.slice(0, limit));
+        const data = await fetchWorkflowApi<{ items: WorkflowRunSummary[] }>(`/runs?${params.toString()}`);
+        setRuns(Array.isArray((data as any)?.items) ? ((data as any).items as any) : []);
       }
     } catch (err) {
       setError(err instanceof Error ? err : new Error('Failed to load workflow runs'));
