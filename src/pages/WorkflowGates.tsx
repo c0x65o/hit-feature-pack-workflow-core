@@ -3,6 +3,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { useUi } from '@hit/ui-kit';
 import { AclPicker, type AclEntry, type AclPickerConfig } from '@hit/ui-kit';
+import { createFetchPrincipals } from '@hit/feature-pack-auth-core';
 import { Workflow } from 'lucide-react';
 
 type GateConfigResponse = {
@@ -101,6 +102,8 @@ export function WorkflowGates() {
     await save(next);
   };
 
+  const fetchPrincipals = useMemo(() => createFetchPrincipals({ isAdmin: true }), []);
+
   return (
     <Page
       title="Workflow Gates"
@@ -135,6 +138,7 @@ export function WorkflowGates() {
           error={null}
           onAdd={handleAdd}
           onRemove={handleRemove}
+          fetchPrincipals={fetchPrincipals}
         />
       </Card>
     </Page>

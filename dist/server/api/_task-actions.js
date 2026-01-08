@@ -1,5 +1,5 @@
 import { and, eq, sql } from 'drizzle-orm';
-import { resolveUserPrincipals } from '@/lib/acl-utils';
+import { resolveUserPrincipals } from '@hit/feature-pack-auth-core/server/lib/acl-utils';
 import { getDb } from '@/lib/db';
 import { workflowRunEvents, workflowRuns, workflowTasks, WORKFLOW_PERMISSIONS } from '@/lib/feature-pack-schemas';
 import { extractUserFromRequest } from '../auth';

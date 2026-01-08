@@ -1,5 +1,5 @@
 import { sql, and, eq, inArray, or } from 'drizzle-orm';
-import { resolveUserPrincipals } from '@/lib/acl-utils';
+import { resolveUserPrincipals } from '@hit/feature-pack-auth-core/server/lib/acl-utils';
 import { extractUserFromRequest } from '../auth';
 import { workflowAcls, workflowRuns, workflows, WORKFLOW_PERMISSIONS } from '@/lib/feature-pack-schemas';
 export function isAdmin(roles) {

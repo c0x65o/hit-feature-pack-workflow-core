@@ -3,6 +3,7 @@ import { jsx as _jsx, jsxs as _jsxs } from "react/jsx-runtime";
 import { useEffect, useMemo, useState } from 'react';
 import { useUi } from '@hit/ui-kit';
 import { AclPicker } from '@hit/ui-kit';
+import { createFetchPrincipals } from '@hit/feature-pack-auth-core';
 import { Workflow } from 'lucide-react';
 async function fetchJson(url, init) {
     const res = await fetch(url, { credentials: 'include', ...(init || {}) });
@@ -84,6 +85,7 @@ export function WorkflowGates() {
         const next = entries.filter((e) => !(e.principalType === entry.principalType && e.principalId === entry.principalId));
         await save(next);
     };
-    return (_jsxs(Page, { title: "Workflow Gates", description: "Configure lifecycle gatekeepers (approver assignment)", actions: _jsx("div", { className: "flex gap-2 items-center", children: _jsx(Button, { variant: "secondary", onClick: load, disabled: loading || saving, children: "Refresh" }) }), children: [error && (_jsx(Alert, { variant: "error", title: "Error", children: error })), _jsxs(Card, { children: [_jsxs("div", { className: "flex items-center gap-2 mb-4", children: [_jsx(Workflow, { size: 18 }), _jsx("div", { className: "font-semibold", children: "CRM: Prospect \u2192 Company" }), _jsxs("div", { className: "text-xs text-gray-500 ml-auto", children: ["gate: ", _jsx("span", { className: "font-mono", children: "crm.company.convertProspect" })] })] }), _jsx(AclPicker, { config: gateAclConfig, entries: entries, loading: loading || saving, error: null, onAdd: handleAdd, onRemove: handleRemove })] })] }));
+    const fetchPrincipals = useMemo(() => createFetchPrincipals({ isAdmin: true }), []);
+    return (_jsxs(Page, { title: "Workflow Gates", description: "Configure lifecycle gatekeepers (approver assignment)", actions: _jsx("div", { className: "flex gap-2 items-center", children: _jsx(Button, { variant: "secondary", onClick: load, disabled: loading || saving, children: "Refresh" }) }), children: [error && (_jsx(Alert, { variant: "error", title: "Error", children: error })), _jsxs(Card, { children: [_jsxs("div", { className: "flex items-center gap-2 mb-4", children: [_jsx(Workflow, { size: 18 }), _jsx("div", { className: "font-semibold", children: "CRM: Prospect \u2192 Company" }), _jsxs("div", { className: "text-xs text-gray-500 ml-auto", children: ["gate: ", _jsx("span", { className: "font-mono", children: "crm.company.convertProspect" })] })] }), _jsx(AclPicker, { config: gateAclConfig, entries: entries, loading: loading || saving, error: null, onAdd: handleAdd, onRemove: handleRemove, fetchPrincipals: fetchPrincipals })] })] }));
 }
 export default WorkflowGates;

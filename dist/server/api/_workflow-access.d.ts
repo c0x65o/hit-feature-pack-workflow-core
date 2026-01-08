@@ -14,7 +14,7 @@ export declare function getPrincipals(request: NextRequest, user: {
     sub: string;
     email?: string;
     roles?: string[];
-}): Promise<import("@/lib/acl-utils").ResolvedUserPrincipals>;
+}): Promise<import("@hit/feature-pack-auth-core/server/lib/acl-utils").ResolvedUserPrincipals>;
 /**
  * Default-closed + admin override:
  * - admins always have access
