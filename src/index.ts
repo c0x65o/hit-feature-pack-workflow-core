@@ -1,10 +1,37 @@
 // @hit/feature-pack-workflow-core
 // A HIT feature pack
 
-export * from './pages';
-export * from './schema/workflows';
+// Pages - exported individually for tree-shaking
+export { WorkflowRunsList } from './pages/WorkflowRunsList';
+export { WorkflowRunDetail } from './pages/WorkflowRunDetail';
+export { WorkflowGates } from './pages/WorkflowGates';
 
-// Re-export hooks explicitly to avoid name conflicts with schema types
+// Schema
+export {
+  principalTypeEnum,
+  WORKFLOW_PERMISSIONS,
+  workflows,
+  workflowVersions,
+  workflowAcls,
+  workflowRuns,
+  workflowRunEvents,
+  workflowTasks,
+  type WorkflowPermission,
+  type Workflow,
+  type InsertWorkflow,
+  type WorkflowVersion,
+  type InsertWorkflowVersion,
+  type WorkflowAcl,
+  type InsertWorkflowAcl,
+  type WorkflowRun,
+  type InsertWorkflowRun,
+  type WorkflowRunEvent,
+  type InsertWorkflowRunEvent,
+  type WorkflowTask,
+  type InsertWorkflowTask,
+} from './schema/workflows';
+
+// Hooks - exported explicitly to avoid name conflicts with schema types
 export {
   useAllWorkflowRuns,
   useWorkflowRun,
