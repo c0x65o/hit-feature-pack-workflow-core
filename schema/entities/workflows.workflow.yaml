@@ -1,0 +1,81 @@
+version: 1
+
+entities:
+  workflows.workflow:
+    meta:
+      titleSingular: Workflow
+      titlePlural: Workflows
+      descriptionPlural: Workflows (placeholder)
+      routes:
+        platforms: [web]
+        root: /workflows
+        list: /workflows
+        new: /workflows/new
+        detail: /workflows/{id}
+        edit: /workflows/{id}/edit
+      breadcrumbs:
+        - { label: Workflows, href: /workflows }
+      actions:
+        createLabel: New Workflow
+        editLabel: Edit Workflow
+        saveCreateLabel: Create Workflow
+        saveUpdateLabel: Save Workflow
+        cancelLabel: Cancel
+        deleteLabel: Delete
+        # This pack is placeholder-only right now.
+        allowDelete: false
+
+    # Schema-driven page security (source of truth for schema-driven pages).
+    security:
+      list:
+        roles: []
+        default_roles_allow: [admin]
+        authz: { entity: workflows, verb: read, require_action: workflow-core.workflows.read.scope.all, show_pages: true }
+      detail:
+        roles: []
+        default_roles_allow: [admin]
+        authz: { entity: workflows, verb: read, require_action: workflow-core.workflows.read.scope.all, show_pages: true }
+      new:
+        roles: []
+        default_roles_allow: [admin]
+        authz: { entity: workflows, verb: write, require_action: workflow-core.workflows.write.scope.all, show_pages: true }
+      edit:
+        roles: []
+        default_roles_allow: [admin]
+        authz: { entity: workflows, verb: write, require_action: workflow-core.workflows.write.scope.all, show_pages: true }
+
+    # IMPORTANT: we intentionally don't auto-generate CRUD routes yet.
+    # This is a placeholder UI entity to keep workflow-core schema-driven with
+    # minimal surface area while the product is under construction.
+    api:
+      baseUrl: /api/workflows
+
+    list:
+      tableId: workflows.placeholder
+      platforms: [web]
+      defaultVisibleOnly: true
+      pageSize: 25
+      initialSort: { sortBy: name, sortOrder: asc }
+      sortWhitelist: [name, status, id]
+      initialColumnVisibility:
+        name: true
+        status: true
+      columns:
+        - name
+        - status
+
+    form:
+      sections:
+        - id: basic
+          title: Workflow
+          layout: { columns: 2 }
+          fields: [name, status]
+
+    fields:
+      id: { type: text, label: ID }
+      name: { type: text, label: Name, required: true }
+      status: { type: text, label: Status }
+
+    detail:
+      summaryTitle: Details
+      summaryFields: [name, status, id]

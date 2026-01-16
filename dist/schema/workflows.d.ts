@@ -337,7 +337,7 @@ export declare const workflowAcls: import("drizzle-orm/pg-core").PgTableWithColu
             tableName: "workflow_acls";
             dataType: "string";
             columnType: "PgEnumColumn";
-            data: "role" | "group" | "user";
+            data: "user" | "group" | "role";
             driverParam: string;
             notNull: true;
             hasDefault: false;

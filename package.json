@@ -1,6 +1,6 @@
 {
   "name": "@hit/feature-pack-workflow-core",
-  "version": "1.0.48",
+  "version": "1.0.49",
   "description": "A HIT feature pack",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -12,13 +12,6 @@
       "import": "./dist/index.js",
       "require": "./dist/index.js",
       "default": "./dist/index.js"
-    },
-    "./pages/*": {
-      "development": "./src/pages/*.tsx",
-      "types": "./dist/pages/*.d.ts",
-      "import": "./dist/pages/*.js",
-      "require": "./dist/pages/*.js",
-      "default": "./dist/pages/*.js"
     },
     "./schema": {
       "development": "./src/schema/workflows.ts",
@@ -41,8 +34,8 @@
     "feature-pack.yaml"
   ],
   "scripts": {
-    "build": "tsc",
-    "dev": "tsc --watch",
+    "build": "npx -y -p typescript tsc",
+    "dev": "npx -y -p typescript tsc --watch",
     "prepublishOnly": "npm run build"
   },
   "peerDependencies": {

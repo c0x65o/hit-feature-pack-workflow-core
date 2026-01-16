@@ -6,50 +6,17 @@ title: System Workflows
 description: Workflow core feature pack
 
 # ─────────────────────────────────────────────────────────────────────────────
-# ROUTES - Frontend page routes
-# ─────────────────────────────────────────────────────────────────────────────
-routes:
-  - path: /workflows/runs
-    page: WorkflowRunsList
-    roles: []
-    default_roles_allow: [admin]
-    authz: { entity: workflows, verb: read }
-  - path: /workflows/runs/[runId]
-    page: WorkflowRunDetail
-    roles: []
-    default_roles_allow: [admin]
-    authz: { entity: workflows, verb: read }
-  - path: /workflows/gates
-    page: WorkflowGates
-    roles: [admin]
-
-# ─────────────────────────────────────────────────────────────────────────────
 # NAVIGATION - Sidebar/topbar items
 # ─────────────────────────────────────────────────────────────────────────────
 nav:
   - id: workflows
     label: Workflows
-    path: /workflows/runs
+    path: /workflows
     icon: Workflow
     group: system
     weight: 900
     showWhen: authenticated
     roles: [admin]
-    children:
-      - id: workflows-runs
-        label: Runs
-        path: /workflows/runs
-        icon: Activity
-        weight: 100
-        showWhen: authenticated
-        roles: [admin]
-      - id: workflows-gates
-        label: Gates
-        path: /workflows/gates
-        icon: Settings
-        weight: 110
-        showWhen: authenticated
-        roles: [admin]
 
 # ─────────────────────────────────────────────────────────────────────────────
 # SCHEMA - Drizzle ORM table definitions
@@ -78,72 +45,6 @@ schema:
     - InsertWorkflowRunEvent
     - WorkflowTask
     - InsertWorkflowTask
-
-# ─────────────────────────────────────────────────────────────────────────────
-# API ROUTES - Backend endpoints
-# ─────────────────────────────────────────────────────────────────────────────
-api:
-  routes:
-    - path: /api/workflows
-      methods: [GET, POST]
-      handler: "@hit/feature-pack-workflow-core/server/api/workflows"
-      description: "List workflows (GET) or create workflow (POST)"
-    - path: /api/workflows/[id]
-      methods: [GET, PUT]
-      handler: "@hit/feature-pack-workflow-core/server/api/workflows-id"
-      description: "Get or update a workflow (includes current draft version)"
-    - path: /api/workflows/[id]/publish
-      methods: [POST]
-      handler: "@hit/feature-pack-workflow-core/server/api/workflows-id-publish"
-      description: "Publish a new immutable version from the current draft"
-    - path: /api/workflows/[id]/acl
-      methods: [GET, POST]
-      handler: "@hit/feature-pack-workflow-core/server/api/workflows-id-acl"
-      description: "List (GET) or create (POST) ACL entries for a workflow"
-    - path: /api/workflows/[id]/acl/[aclId]
-      methods: [DELETE]
-      handler: "@hit/feature-pack-workflow-core/server/api/workflows-id-acl-id"
-      description: "Delete a workflow ACL entry"
-
-    # Runs
-    - path: /api/workflows/[id]/runs
-      methods: [GET, POST]
-      handler: "@hit/feature-pack-workflow-core/server/api/workflows-id-runs"
-      description: "List runs for a workflow (GET) or start a new run (POST)"
-    - path: /api/workflows/runs/[runId]
-      methods: [GET]
-      handler: "@hit/feature-pack-workflow-core/server/api/workflow-runs-id"
-      description: "Get run detail"
-    - path: /api/workflows/runs/[runId]/events
-      methods: [GET]
-      handler: "@hit/feature-pack-workflow-core/server/api/workflow-runs-id-events"
-      description: "Get run event timeline"
-
-    # Tasks (human steps)
-    - path: /api/workflows/runs/[runId]/tasks
-      methods: [GET, POST]
-      handler: "@hit/feature-pack-workflow-core/server/api/workflow-runs-id-tasks"
-      description: "List tasks for a run (GET) or create a task (POST) (internal/MVP)"
-    - path: /api/workflows/runs/[runId]/tasks/[taskId]/approve
-      methods: [POST]
-      handler: "@hit/feature-pack-workflow-core/server/api/workflow-runs-id-tasks-id-approve"
-      description: "Approve a task and resume run"
-    - path: /api/workflows/runs/[runId]/tasks/[taskId]/deny
-      methods: [POST]
-      handler: "@hit/feature-pack-workflow-core/server/api/workflow-runs-id-tasks-id-deny"
-      description: "Deny a task and resume run"
-
-    # Global task inbox (for notification feeds / approvals)
-    - path: /api/workflows/tasks
-      methods: [GET]
-      handler: "@hit/feature-pack-workflow-core/server/api/workflows-tasks"
-      description: "List workflow tasks assigned to the current user (open + optionally recently resolved)"
-
-    # Gate config (system-level lifecycle gatekeeper configuration)
-    - path: /api/workflows/gates/crm-convert-prospect
-      methods: [GET, PUT]
-      handler: "@hit/feature-pack-workflow-core/server/api/workflow-gates-crm-convert-prospect"
-      description: "Get or update the gatekeeper ACL for CRM prospect->company conversion"
 
 # ─────────────────────────────────────────────────────────────────────────────
 # PERMISSIONS - Action definitions (for admin-core permissions UI + runtime checks)
