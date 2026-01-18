@@ -13,7 +13,7 @@ nav:
     label: My Approvals
     icon: Inbox
     path: /hub/approvals
-    group: hub
+    parentId: my-hub
     weight: 10
     showWhen: authenticated
   - id: workflows
