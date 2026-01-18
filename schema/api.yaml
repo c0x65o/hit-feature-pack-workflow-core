@@ -1,0 +1,56 @@
+version: 1
+
+# Pack-owned "special" API routes (schema-visible).
+#
+# These are endpoints that are NOT the schema-generated CRUD routes derived from `entities.*.api.resource`.
+# They must be explicitly declared here so `hit schema validate` can enforce consistency and prevent drift.
+api:
+  routes:
+    - path: /api/workflows/[id]/publish
+      methods: [POST]
+      handler: workflows-id-publish
+      description: "Publish a workflow version"
+    - path: /api/workflows/[id]/runs
+      methods: [GET, POST]
+      handler: workflows-id-runs
+      description: "List or create workflow runs for a workflow"
+    - path: /api/workflows/[id]/acl
+      methods: [GET, POST]
+      handler: workflows-id-acl
+      description: "Manage workflow ACL entries"
+    - path: /api/workflows/[id]/acl/[aclId]
+      methods: [DELETE]
+      handler: workflows-id-acl-id
+      description: "Delete a workflow ACL entry"
+    - path: /api/workflows/runs
+      methods: [GET]
+      handler: workflows-runs
+      description: "List workflow runs across all workflows"
+    - path: /api/workflows/runs/[runId]
+      methods: [GET]
+      handler: workflow-runs-id
+      description: "Get workflow run detail"
+    - path: /api/workflows/runs/[runId]/events
+      methods: [GET]
+      handler: workflow-runs-id-events
+      description: "Get workflow run events"
+    - path: /api/workflows/runs/[runId]/tasks
+      methods: [GET, POST]
+      handler: workflow-runs-id-tasks
+      description: "Get or create workflow tasks for a run"
+    - path: /api/workflows/runs/[runId]/tasks/[taskId]/approve
+      methods: [POST]
+      handler: workflow-runs-id-tasks-id-approve
+      description: "Approve a workflow task"
+    - path: /api/workflows/runs/[runId]/tasks/[taskId]/deny
+      methods: [POST]
+      handler: workflow-runs-id-tasks-id-deny
+      description: "Deny a workflow task"
+    - path: /api/workflows/tasks
+      methods: [GET]
+      handler: workflows-tasks
+      description: "List workflow tasks assigned to current user"
+    - path: /api/workflows/tasks/[id]
+      methods: [GET]
+      handler: workflows-tasks-id
+      description: "Get workflow task detail"
