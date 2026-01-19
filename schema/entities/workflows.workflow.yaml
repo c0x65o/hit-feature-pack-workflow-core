@@ -28,20 +28,12 @@ entities:
     # Schema-driven page security (source of truth for schema-driven pages).
     security:
       list:
-        roles: []
-        default_roles_allow: [admin]
         authz: { entity: workflows, verb: read, require_action: workflow-core.workflows.read.scope.all, show_pages: true }
       detail:
-        roles: []
-        default_roles_allow: [admin]
         authz: { entity: workflows, verb: read, require_action: workflow-core.workflows.read.scope.all, show_pages: true }
       new:
-        roles: []
-        default_roles_allow: [admin]
         authz: { entity: workflows, verb: write, require_action: workflow-core.workflows.write.scope.all, show_pages: true }
       edit:
-        roles: []
-        default_roles_allow: [admin]
         authz: { entity: workflows, verb: write, require_action: workflow-core.workflows.write.scope.all, show_pages: true }
 
     # IMPORTANT: we intentionally don't auto-generate CRUD routes yet.

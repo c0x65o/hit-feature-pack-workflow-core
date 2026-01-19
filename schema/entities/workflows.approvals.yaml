@@ -21,12 +21,8 @@ entities:
 
     security:
       list:
-        roles: []
-        default_roles_allow: [user]
         authz: { entity: workflows, verb: read, require_action: workflow-core.approvals.access, show_pages: true }
       detail:
-        roles: []
-        default_roles_allow: [user]
         authz: { entity: workflows, verb: read, require_action: workflow-core.approvals.access, show_pages: true }
 
     api:
@@ -127,12 +123,8 @@ entities:
 
     security:
       list:
-        roles: []
-        default_roles_allow: [admin]
         authz: { entity: workflows, verb: read, require_action: workflow-core.workflows.read.scope.all, show_pages: true }
       detail:
-        roles: []
-        default_roles_allow: [admin]
         authz: { entity: workflows, verb: read, require_action: workflow-core.workflows.read.scope.all, show_pages: true }
 
     api:
