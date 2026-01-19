@@ -1,2 +1,0 @@
--- Initial schema for workflows feature pack
--- Add your CREATE TABLE statements here
